@@ -1,10 +1,12 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "test";
+session_start();
 
-$conn = mysqli_connect($servername, $username, $password, $dbname);
+if(!isset($_SESSION['logged']) || $_SESSION['logged']!=True) {
+	header('Location: index.php');
+	exit();
+}
+
+require 'db_form.php';
 
 $city_values = array();
 $gender_values = array();
@@ -100,6 +102,8 @@ echo "Please complete the form!";
   ?>
   <input type="submit" value="Submit">
 </form>
+
+<a href="logout.php">Logout</a>
 
 </body>
 </html>
