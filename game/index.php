@@ -26,7 +26,9 @@ $_SESSION["last_word_id"] = 0;
 if(sizeof($_SESSION["guessed_id"]) == sizeof($result1))
 header('Location: logout.php');
 else 
-while( in_array( ($random_w = rand(1,mysqli_num_rows($result))), $_SESSION["guessed_id"] ) && $random_w != $_SESSION["last_word_id"] /* && print_r(" $".$_SESSION["last_word_id"]." ") */);
+if(sizeof($_SESSION["guessed_id"]) < sizeof($result1)-1)
+while( in_array( ($random_w = rand(1,mysqli_num_rows($result))), $_SESSION["guessed_id"] ) || $random_w == $_SESSION["last_word_id"] );
+else $random_w = $_SESSION["last_word_id"];
 
 if($_POST!=NULL){
     if(isset($_SESSION["submit"]))
@@ -39,6 +41,7 @@ if($_POST!=NULL){
         foreach($result1 as $result_one) {
             if($_SESSION["word"] == $result_one["word"]){
                 $_SESSION["guessed_id"][] = $result_one["id"];
+                //$_SESSION["words"][] = $result_one["word"];
             }
         }
         header('Location: won.php');
@@ -51,11 +54,6 @@ foreach($result1 as $result_one) {
         $_SESSION["last_word_id"] = $result_one["id"];
     }
 }
-//while(($random_w = rand(1,mysqli_num_rows($result)))==$_SESSION["last_word_id"]);
-//while( in_array( ($random_w = rand(1,mysqli_num_rows($result))), $_SESSION["guessed_id"] ) && $random_w != $_SESSION["last_word_id"]);
-//print $random_w;
-//debug
-//echo $random_w;
 
 if($result1!=NULL)
 foreach($result1 as $result_one) {
@@ -64,8 +62,9 @@ foreach($result1 as $result_one) {
     }
         
 }
-/* if(isset($_SESSION["guessed_id"]))
-print_r($_SESSION["guessed_id"]); */
+//debug
+/* if(isset($_SESSION["words"]))
+print_r($_SESSION["words"]); */
 
 $shuffled = str_shuffle( $_SESSION["word"]);
 
@@ -86,17 +85,13 @@ mysqli_close($conn);
 
 <form method="post">
   <label for="guess">Your guess:</label><br>
-  <input type="text" id="guess" name="guess" value=""><br><br>
+  <input type="text" id="guess" name="guess" value="" autofocus><br><br>
 
   <input type="submit" value="Submit">
 </form>
 
-<p>Note that the form itself is not visible.</p>
-
-<p>Also note that the default width of text input fields is 20 characters.</p>
-
-
-<a href="logout.php">Logout</a>
+<br>
+<a href="logout.php">Reset</a>
 
 </body>
 </html>
