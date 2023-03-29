@@ -26,9 +26,10 @@ $_SESSION["last_word_id"] = 0;
 if(sizeof($_SESSION["guessed_id"]) == sizeof($result1))
 header('Location: logout.php');
 else 
-if(sizeof($_SESSION["guessed_id"]) < sizeof($result1)-1)
-while( in_array( ($random_w = rand(1,mysqli_num_rows($result))), $_SESSION["guessed_id"] ) || $random_w == $_SESSION["last_word_id"] );
-else $random_w = $_SESSION["last_word_id"];
+if(!in_array($_SESSION["last_word_id"],$_SESSION["guessed_id"]) && $_SESSION["last_word_id"])
+$random_w = $_SESSION["last_word_id"];
+else
+while( in_array( ($random_w = rand(1,mysqli_num_rows($result))), $_SESSION["guessed_id"] ) );
 
 if($_POST!=NULL){
     if(isset($_SESSION["submit"]))
