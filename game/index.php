@@ -5,7 +5,7 @@ require "db_game.php";
 
 $sql = "SELECT * FROM words";
 $result = mysqli_query($conn, $sql);
-$result1;
+$result1 = array();
 
 if (mysqli_num_rows($result) > 0) {
     $result1 = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -56,7 +56,7 @@ foreach($result1 as $result_one) {
     }
 }
 
-if($result1!=NULL)
+if(isset($result1))
 foreach($result1 as $result_one) {
     if($random_w == $result_one["id"]){
         $_SESSION["word"] = $result_one["word"];
