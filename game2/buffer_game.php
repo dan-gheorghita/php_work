@@ -33,6 +33,18 @@ function check_var_for_display($name)
     }
 }
 
+//Sets the css text color according to the guess result
+if(!isset($_SESSION["is_corect_var"]))
+$_SESSION["is_corect_var"] = 1;
+
+function is_corect(){
+    if(isset($_SESSION["is_corect_var"]))
+    if($_SESSION["is_corect_var"])
+        echo 'class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3"';
+        else 
+        echo 'class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"';
+}
+
 // Check if the user has submitted a guess
 if (isset($_POST["guess"])) {
     $guess = $_POST["guess"];
@@ -42,8 +54,10 @@ if (isset($_POST["guess"])) {
     if ($guess == $real_word) {
         echo "Congratulations! You guessed the word!";
         $_SESSION["wins"]++;
+        $_SESSION["is_corect_var"] = 1;
     } else {
         echo "Try again!";
+        $_SESSION["is_corect_var"] = 0;
     }
 
     // Generate a new word and store it in the session

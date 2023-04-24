@@ -15,7 +15,7 @@ require "buffer_game.php";
             <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">
                 <div class="col-lg-7 p-3 p-lg-5 pt-lg-3">
                     <h1>Guess the word!</h1>
-                    <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
+                    <div <?php is_corect();?>>
                         <p>Shuffled word: <?php echo $shuffled_word;?></p>
                     </div>
                     <form method="post">
@@ -31,11 +31,11 @@ require "buffer_game.php";
                     </form>
                     <!-- Display the game statistics -->
                     <h2>Statistics:</h2>
-                    <p>Attempts: <?php check_var_for_display("attempts")?></p>
-                    <p>Wins: <?php check_var_for_display("wins")?></p>
+                    <p>Attempts: <?php check_var_for_display("attempts");?></p>
+                    <p>Wins: <?php check_var_for_display("wins");?></p>
                 </div>
                 <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
-                    <img class="rounded-lg-3" src="abstract-paper.jpg" alt="" width="720" height="180">
+                    <img class="rounded-lg-3" src="abstract-paper.jpg" alt="" width="720">
                 </div>
             </div>
         </div>
