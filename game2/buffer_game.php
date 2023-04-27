@@ -2,6 +2,14 @@
 // Connect to MySQL
 require "db.php";
 
+// Check if the user is logged in
+if($_SESSION['logged'] != True){
+    header( 'HTTP/1.0 403 Forbidden', TRUE, 403 );
+
+    /* choose the appropriate page to redirect users */
+    die( header( 'location: /error.php' ) );
+}
+
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -12,7 +20,6 @@ if (!isset($_SESSION["real_word"])) {
     $sql = "SELECT word FROM words ORDER BY RAND() LIMIT 1";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
-    print_r($row);
     $_SESSION["real_word"] = $row["word"];
 }
 
