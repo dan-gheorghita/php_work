@@ -31,8 +31,8 @@ require "buffer_game.php";
                     </form>
                     <!-- Display the game statistics -->
                     <h2>Statistics:</h2>
-                    <p>Attempts: <?php check_var_for_display("attempts");?></p>
-                    <p>Wins: <?php check_var_for_display("wins");?></p>
+                    <p>Word attempt: <?php echo $_SESSION["word_attempts"];?></p>
+                    <p>Wins: <?php echo $_SESSION["wins"];?></p>
                 </div>
                 <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
                     <img class="rounded-lg-3" src="abstract-paper.jpg" alt="" width="720">

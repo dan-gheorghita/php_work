@@ -25,13 +25,16 @@ if (!empty($_POST)) {
 		$name = $_POST['name'];
 		$password = $_POST['password'];
 
-		$sql = "SELECT user_name,password FROM `users` WHERE `user_name` LIKE '$name'";
+		$sql = "SELECT id,user_name,password FROM `users` WHERE `user_name` LIKE '$name'";
 		$result = $conn->query($sql);
 
 		if ($result->num_rows == 1) {
 			$row = $result->fetch_assoc();
 			if(password_verify($password,$row["password"])){
 				$_SESSION['logged'] = True;
+				//Remember user
+				$_SESSION["user_id"] = $row["id"];
+
 				$conn->close();
 				header('Location: buffer_frontend.php');
 				exit();
