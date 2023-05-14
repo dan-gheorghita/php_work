@@ -14,24 +14,11 @@ if($_SESSION['logged'] != True){
     /* choose the appropriate page to redirect users */
     die( header( 'location: /error.php' ) );
 }
-$user_id = $_SESSION["user_id"];
-$sql = "SELECT * FROM user_games ORDER BY id DESC LIMIT 1 WHERE 'user_id' LIKE '$user_id'";
-$result = $conn->query($sql);
 
-if ($result->num_rows == 1) {
-    $row = $result->fetch_assoc();
-    $_SESSION["attempt_ids"] = $row["attempt_ids"];
-    $_SESSION["real_word"] = $row["current_word"];
-    $_SESSION["word_attempts"] = $row["current_attempt"];
-    $_SESSION["total_attempts"] = $row["total_attempts"];
-    $_SESSION["wins"] = $row["guessed_cnt"];
-
-    $attempts_id = explode("','",$row["attempt_ids"]);
-    $attempt_ids =$row["attempt_ids"];
-    $sql = "SELECT id,word FROM words ORDER BY RAND() LIMIT 1 WHERE id NOT IN ('$attempt_ids')";
-    $result = $conn->query($sql);
-
-} else {
+//Creates the new game parameters through a function
+function new_game($conn){
+    $user_id = $_SESSION["user_id"];
+    //Select random word from database
     $sql = "SELECT id,word FROM words ORDER BY RAND() LIMIT 1";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
@@ -39,15 +26,39 @@ if ($result->num_rows == 1) {
     $_SESSION["word_id"] = $row["id"];
     $word = $row["word"];
 
-    $sql = "INSERT INTO `user_games` (`id`, `user_id`, `attempt_ids`, `current_word`, `current_attempt`, `guessed_cnt`) VALUES (NULL, '$user_id', '', '$word', '0', '0')";
+    //Create new entry in user_games database
+    $sql = "INSERT INTO `user_games` (`id`, `user_id`, `attempt_ids`, `current_word`, `current_attempt`, `guessed_cnt`) VALUES (NULL, '$user_id', '', '$word', '1', '0')";
     if ($conn->query($sql) === TRUE) {
         echo "New game created successfully";
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
+
+    //Set the sessions parameters according to the db values
     $_SESSION["attempt_ids"] = '';
-    $_SESSION["word_attempts"] = 0;
+    $_SESSION["word_attempts"] = 1;
     $_SESSION["guessed_cnt"] = 0;
+    $_SESSION["wins"] = 0;
+}
+
+//Fetch every time the last game of the user
+$user_id = $_SESSION["user_id"];
+$sql = "SELECT * FROM user_games WHERE user_id = '$user_id' ORDER BY id DESC LIMIT 1";
+$result = $conn->query($sql);
+
+//Store every db value in a session variable
+if ($result->num_rows == 1) {
+    $row = $result->fetch_assoc();
+    $_SESSION["attempt_ids"] = $row["attempt_ids"];
+    $_SESSION["real_word"] = $row["current_word"];
+    $_SESSION["word_attempts"] =  $row["current_attempt"];
+    $_SESSION["wins"] = $row["guessed_cnt"];
+    $_SESSION["game_id"] = $row["id"];
+
+
+} else {
+    //or if the game does not exist create new game
+   new_game($conn);
 }
 
 //Sets the css text color according to the guess result
@@ -63,31 +74,43 @@ function is_corect(){
 }
 
 function new_word($conn){
-    //When the word is guessed get the id of it then put it in the string
-    $real_word = $_SESSION["real_word"];
-    $sql = "SELECT id FROM words WHERE 'words' LIKE '$real_word'";
-    $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
-    $_SESSION["word_id"] = $row["id"];
+    //Check if is the firt word in the list and adds the word to the list
+    if($_SESSION["attempt_ids"] != NULL)
+    $attempt_ids = $_SESSION["attempt_ids"].",".$_SESSION["word_id"];
+    else
+    $attempt_ids = $_SESSION["word_id"];
 
-    $attempt_ids = $_SESSION["attempt_ids"]."','".$_SESSION["word_id"];
-    $sql = "SELECT id,word FROM words ORDER BY RAND() LIMIT 1 WHERE id NOT IN ('$attempt_ids')";
-    $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
-    $_SESSION["real_word"] = $row["word"];
-    $_SESSION["word_id"] = $row["id"];
-    $word = $row["word"];
+    $attempts_id = explode(",",$attempt_ids);
+    $attempt_id = implode("','",$attempts_id);
 
-    $user_id = $_SESSION["user_id"];
+    //Select a word that hasn't been guesed
+    $sql = "SELECT id,word FROM words WHERE id NOT IN ('$attempt_id') ORDER BY RAND() LIMIT 1 ";
+    $result = $conn->query($sql);
+     $row = $result->fetch_assoc();
+     //See if the game has more words
+    if(isset($row)){
+       
+        $_SESSION["real_word"] = $row["word"];
+        $_SESSION["word_id"] = $row["id"];
+        $word = $row["word"];
+        print_r($row);
+    }
+    
+    //Update the status of the game
+    $game_id = $_SESSION["game_id"];
     $guessed_cnt = $_SESSION["wins"];
-    $sql = "UPDATE `user_games` SET  attempt_ids = '$attempt_ids', current_word = '$word' , current_attempt = 0, guessed_cnt = '$guessed_cnt' WHERE user_id = '$user_id'";
+    $sql = "UPDATE `user_games` SET  attempt_ids = '$attempt_ids', current_word = '$word' , current_attempt = '1', guessed_cnt = '$guessed_cnt' WHERE id = '$game_id'";
     if ($conn->query($sql) === TRUE) {
-        echo "Game changed successfully";
+        echo "Word changed successfully";
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
-    $_SESSION["word_attempts"] = 0;
+    $_SESSION["word_attempts"] = 1;
 
+    //Sets 0 if no more words are in the game
+    if(isset($row))
+    return 1;
+    else return 0;
 }
 
 // Check if the user has submitted a guess
@@ -99,15 +122,34 @@ if (isset($_POST["guess"])) {
     if ($guess == $real_word) {
         $_SESSION["wins"]++;
         $_SESSION["is_corect_var"] = 1;
-        new_word($conn);
+        //Creates new game if there are not any more words
+        $next_game = new_word($conn);
+        if($next_game == 0){
+            new_game($conn);
+
+        }
+        
         echo "Congratulations! You guessed the word!";
     } else {
-        if($_SESSION["word_attempts"] == 3)
-            new_word($conn);
-            else{
-                $_SESSION["is_corect_var"] = 0;
-                echo "Try again!";
+        if ($_SESSION["word_attempts"] == 3){
+            //Creates new game if there are not any more words
+            if(new_word($conn) == 0)
+                new_game($conn);
+        }
+        else {
+            //Increase attempt count for the word
+            $_SESSION["is_corect_var"] = 0;
+            $_SESSION["word_attempts"]++;
+            $curent_attempt = $_SESSION["word_attempts"];
+            $game_id = $_SESSION["game_id"];
+            $sql = "UPDATE `user_games` SET current_attempt = '$curent_attempt' WHERE id = '$game_id'";
+            if ($conn->query($sql) === TRUE) {
+                echo "Attempt increase successfully <br>";
+            } else {
+                echo "Error: " . $sql . "<br>" . $conn->error;
             }
+            echo "Try again!";
+        }
     }
 
     // Increment the number of attempts
