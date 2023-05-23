@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <html data-bs-theme="light" lang="en">
 
 <head>
@@ -10,38 +9,20 @@
     <link href="sign-in.css" rel="stylesheet">
 </head>
 
-<body class="text-center">
 
-    <main class="form-signin w-100 m-auto">
-
-        <form method="post" action="login.php">
-            <img class="mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
-            <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-
-            <div class="form-floating">
-                <input type="text" class="form-control" id="name" name="name" placeholder="Username">
-                <label for="name">Username</label>
-            </div>
-            <div class="form-floating">
-                <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-                <label for="password">Password</label>
-            </div>
-            <?php
-            if (!empty($_SESSION['error'])) {
-                echo "<div style='padding-bottom:15px;color:red;'>" . $_SESSION['error'] . "</div>";
-            }
-            unset($_SESSION['error']);
-            ?>
-            <div class="checkbox mb-3">
-                <label>
-                    <input type="checkbox" value="remember-me"> Remember me
-                </label>
-            </div>
-            <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
-            <p class="mt-5 mb-3 text-body-secondary">© 2023</p>
-        </form>
-    </main>
-
-</body>
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold text-body-emphasis">Guess the word game!</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">Welcome to the game! This is a game where random words are shuffled and you need to guess it. To continue please sign up or if you already have an account just log in</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="signup_html.php">
+                <button type="button" class="btn btn-primary btn-lg px-4 gap-3">Sign up</button>
+            </a>
+            <a href="index.php">
+                <button type="button" class="btn btn-outline-secondary btn-lg px-4">Log in</button>
+            </a>
+        </div>
+    </div>
+</div>
 
 </html>
