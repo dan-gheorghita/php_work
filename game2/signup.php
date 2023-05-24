@@ -43,6 +43,10 @@ if (!empty($_POST)) {
             $sql = "INSERT INTO `users` (`id`, `user_name`, `password`, `is_admin`) VALUES (NULL, '$name', '$hashed_password', '0')";
             if ($conn->query($sql) === TRUE) {
                 echo "New account created successfully";
+                $sql = "SELECT id,user_name FROM `users` WHERE `user_name` LIKE '$name'";
+		        $result = $conn->query($sql);
+                $row = $result->fetch_assoc();
+                $_SESSION["user_id"] = $row["id"];
                 $_SESSION['logged'] = True;
               } else {
                 echo "Error: " . $sql . "<br>" . $conn->error;

@@ -39,6 +39,9 @@ require "buffer_game.php";
                 </div>
             </div>
         </div>
+        <a href="scoreboard_html.php">
+                <button type="button" class="btn btn-primary btn-lg px-4 gap-3">Leaderboard</button>
+            </a>
     </main>
 
 </body>
